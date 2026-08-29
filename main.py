@@ -1,36 +1,54 @@
-from services.contacto_services import registrar_contacto, mostrar_contactos, eliminar_contacto
-from services.contacto_services import actualizar_contacto, cargar_contactos_json
-from services.contacto_services import registrar_contactos_automaticamente, guardar_json 
+from repositories.db import get_connection
+from repositories.contacto_repositori import ContactoRepository
+from services.contacto_services import ContactoService
+
 
 def menu_contactos():
-    contactos=[]
-    archivo=None
+
+    connection = get_connection()
+
+    repository = ContactoRepository(connection)
+
+    service = ContactoService(repository)
+
     while True:
-        print('\nMenu de contactos\n1.- Agregar\n2.- Ver\n3.- Eliminar' \
-        '\n4.- Actualizar\n5.- Cargar contacos desde archivo\n6.- Generar datos automaticamente' \
-        '\n7.- guardar datos en un archivo JSON\n8.- Salir')
-        opcion= input('Opcion: ')
-        
+
+        print(
+            """
+        MENU DE CONTACTOS
+
+        1. Agregar
+        2. Ver
+        3. Actualizar
+        4. Eliminar
+        5. Salir
+        """
+        )
+
+        opcion = input("Opción: ")
+
         match opcion:
-            case '1':
-                registrar_contacto(contactos, archivo)
-            case '2':
-                mostrar_contactos(contactos)
-            case '3':
-                eliminar_contacto(contactos, archivo)
-            case '4':
-                actualizar_contacto(contactos, archivo)
-            case '5':
-                contactos=cargar_contactos_json(contactos)
-            case '6'    :
-                contactos=registrar_contactos_automaticamente(archivo,contactos)
-            case '7':
-                archivo=guardar_json(contactos,archivo)    
-            case '8':
-                print('Hasta luego')
+
+            case "1":
+                service.registrar_contacto()
+
+            case "2":
+                service.mostrar_contactos()
+
+            case "3":
+                service.actualizar_contacto()
+
+            case "4":
+                service.eliminar_contacto()
+
+            case "5":
                 break
+
             case _:
-                print('Opcion no valida')
+                print("Opción no válida.")
+
+    connection.close()
 
 
-menu_contactos()
+if __name__ == "__main__":
+    menu_contactos()

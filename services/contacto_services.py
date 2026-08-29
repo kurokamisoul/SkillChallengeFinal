@@ -1,142 +1,113 @@
-from models.contacto import crear_contacto
-from faker  import Faker
-from datetime import date
-import json
-import tkinter as tk
-from tkinter import filedialog
+from models.contacto import Contacto
+from repositories.contacto_repositori import ContactoRepository
 
-TOTAL_CONTACTOS = 15
+def validar_telefono(telefono: str) -> str:
 
-fake= Faker("es_MX")
+    while len(telefono) != 10 or not telefono.isdigit():
 
-def generar_id(contactos):
-    if not contactos:
-        return 1
-    return max(contacto['id'] for contacto in contactos)+1
+        print(
+            "El teléfono debe contener exactamente "
+            "10 caracteres numéricos."
+        )
 
-def validar_telefono(telefono):
-    while len(telefono)>10 or len(telefono)<10 or not telefono.isdigit():
-        if len(telefono)>10 or len(telefono)<10:
-            print('El telefono debe de contener 10 caracteres numericos')
-        if not telefono.isdigit():
-            print('El numero solo debe contener nuemeros')    
-        telefono=input('ingresa el telefono')
+        telefono = input("Ingresa el teléfono: ")
+
     return telefono
 
-def validar_email(email):
-    while not email.strip() or '@' not in email or '.' not in email.split('@')[1]:
-        if not email.strip():
-            print("El campo email no debe ser vacio")
-        if '@' not in email:
-            print("El campo email debe tener @")
-        
-        elif '.' not in email.split('@')[1]:
-            print("El campo email debe tener un dominio")
-        email= input('ingresa el email ')
+
+def validar_email(email: str) -> str:
+
+    while (
+        not email.strip()
+        or "@" not in email
+        or "." not in email.split("@")[1]
+    ):
+
+        print("El email no es válido.")
+
+        email = input("Ingresa el email: ")
+
     return email
+class ContactoService:
 
-def registrar_contacto(contactos, archivo):
-    nombre_contacto = input('ingresa el nombre ')
-    telefono = validar_telefono(input('ingresa el telefono '))
-    email = validar_email(input('ingresa el email '))
-    fecha_creacion = date.today().strftime('%d/%m/%Y')
-    contacto = crear_contacto(generar_id(contactos) ,nombre_contacto, telefono, email, fecha_creacion)
-    contactos.append(contacto)
-    print(f"El contacto {contacto["nombre_contacto"]} se agrego correctamente")
-    if archivo:
-        guardar_json(contactos, archivo)
-    return contacto
+    def __init__(
+        self,
+        repository: ContactoRepository
+    ):
+        self.repository = repository
 
-def registrar_contactos_automaticamente(archivo, contactos):
-    for _ in range(TOTAL_CONTACTOS):
-        telefono = str(fake.random_number(digits=10, fix_len=True))
-        contacto=crear_contacto(generar_id(contactos), fake.name(),telefono , fake.email(), date.today().strftime('%d/%m/%Y'))
-        contactos.append(contacto)
-    if archivo:
-        guardar_json(contactos, archivo)
-    return contactos
+    def registrar_contacto(self):
 
-def actualizar_contacto(contactos,archivo):
-    nombre= input('Nombre del contacto que desea actualizar: ')
-    for contacto in contactos:
-        if contacto['nombre_contacto'].lower() == nombre.lower():
-            contacto['nombre_contacto'] = input('ingresa el nombre ')
-            contacto['telefono'] = validar_telefono(input('ingresa el telefono '))
-            contacto['email'] = validar_email(input('ingresa el email '))
-            print("se actualizo el contacto")
-            if archivo:
-                guardar_json(contactos, archivo)
-            return
-    print("Sin resultados")    
+        nombre = input("Ingresa el nombre: ")
 
-
-def eliminar_contacto(contactos, archivo):
-    nombre= input('Nombre del contacto que desea eliminar: ')
-    for contacto in contactos:
-        if contacto['nombre_contacto'].lower() == nombre.lower():
-            contactos.remove(contacto)
-            if archivo:
-                guardar_json(contactos, archivo)
-            print("Contacto eliminado")
-            return
-    print("Sin resultados")
-
-def mostrar_contactos(contactos):
-    for contacto in contactos:
-        print(contacto)
-
-def cargar_json(archivo):
-    try:
-        with open(archivo, 'r', encoding='utf-8') as file:
-            return json.load(file)
-    except FileNotFoundError:
-        return[]
-    except json.JSONDecodeError:
-        print("archivo corrupto")
-        return[]
-
-def guardar_json(contactos, archivo):
-    if archivo:
-      ruta_archivo=archivo
-    else:    
-        root = tk.Tk()
-        root.withdraw()
-        ruta_archivo= filedialog.asksaveasfilename(
-        defaultextension=".json",
-        filetypes=[("Archivos JSON", "*.json"), ("Todos los archivos", "*.*")],
-        title="Guardar archivo JSON"
+        telefono = validar_telefono(
+            input("Ingresa el teléfono: ")
         )
-    try:
-        with open(ruta_archivo, 'w', encoding='utf-8') as file:
-            json.dump(contactos,file, ensure_ascii=False, indent=2)
-            return ruta_archivo
-    except Exception as e:
-        print(f"Error al guardar el archivo: {e}")
 
-def importar_contactos_archivo(contactos, datos_contactos_archivo):
-    for dato_contacto in datos_contactos_archivo:
-        contacto= crear_contacto(
-            generar_id(contactos),
-            dato_contacto['nombre_contacto'],
-            dato_contacto['telefono'],
-            dato_contacto['email'],
-            dato_contacto['fecha_creacion']
-            )
-        contactos.append(contacto)
-    return contactos    
-            
-def cargar_contactos_json(contactos):
-    root = tk.Tk()
-    root.withdraw()
-    ruta_archivo = filedialog.askopenfilename(
-        title="Selecciona un archivo JSON",
-        filetypes=[("Archivos JSON", "*.json"), ("Todos los archivos", "*.*")]
-    )
-    datos_contactos_archivo=cargar_json(ruta_archivo)
-    if contactos:
-        contactos= importar_contactos_archivo(contactos, datos_contactos_archivo)
-    else:
-        contactos= datos_contactos_archivo
-    print("se cargo la informacion con exito")
-    return contactos
+        email = validar_email(
+            input("Ingresa el email: ")
+        )
 
+        contacto = Contacto.crear_contacto(
+            nombre,
+            telefono,
+            email
+        )
+
+        contacto = self.repository.crear(contacto)
+
+        print(
+            f"El contacto {contacto.nombre_contacto} "
+            f"se agregó correctamente."
+        )
+
+    def mostrar_contactos(self):
+
+        contactos = self.repository.listar_contactos()
+
+        if not contactos:
+            print("No existen contactos.")
+            return
+
+        for contacto in contactos:
+            print(contacto)
+
+    def actualizar_contacto(self):
+
+        id_contacto = int(
+            input("Ingresa el ID del contacto: ")
+        )
+
+        contacto = self.repository.obtener_por_id(
+            id_contacto
+        )
+
+        if contacto is None:
+            print("Contacto no encontrado.")
+            return
+
+        contacto.nombre_contacto = input(
+            "Ingresa el nuevo nombre: "
+        )
+
+        contacto.telefono = validar_telefono(
+            input("Ingresa el nuevo teléfono: ")
+        )
+
+        contacto.email = validar_email(
+            input("Ingresa el nuevo email: ")
+        )
+
+        if self.repository.actualizar(contacto):
+            print("Contacto actualizado.")
+
+    def eliminar_contacto(self):
+
+        id_contacto = int(
+            input("Ingresa el ID del contacto: ")
+        )
+
+        if self.repository.eliminar(id_contacto):
+            print("Contacto eliminado.")
+        else:
+            print("Contacto no encontrado.")
