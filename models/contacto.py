@@ -9,13 +9,15 @@ class Contacto:
     email : str
     activo : bool
     fecha_creacion : datetime | None
+    id_categoria: int
 
     @classmethod
     def crear_contacto(
         cls,
         nombre_contacto : str,
         telefono : str,
-        email : str
+        email : str,
+        id_categoria : int
     ) -> "Contacto":
 
         return cls(
@@ -24,7 +26,8 @@ class Contacto:
             telefono = telefono,
             email = email,
             activo = True,
-            fecha_creacion = None
+            fecha_creacion = None,
+            id_categoria = id_categoria
         )
 
     @classmethod
@@ -35,6 +38,7 @@ class Contacto:
             telefono = row['telefono'],
             email = row['email'],
             activo = row['activo'],
-            fecha_creacion = row['fecha_creacion']
+            fecha_creacion = row['fecha_creacion'],
+            id_categoria = row['fecha_creacion']
         )
 
