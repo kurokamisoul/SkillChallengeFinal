@@ -1,6 +1,7 @@
 from models.contacto import Contacto
 from repositories.contacto_repositori import ContactoRepository
 from repositories.categoria_repositori import CategoriaRepository
+from services.exceptions import RegistroDuplicadoError
 
 
 def validar_telefono(telefono: str) -> str:
@@ -93,6 +94,12 @@ class ContactoService:
             input("Ingresa el email: ")
         )
 
+        if self.repository.existe_email(email):
+
+            raise RegistroDuplicadoError(
+                "Ya existe un contacto activo con ese correo."
+        )
+
         id_categoria = self.seleccionar_categoria()
 
         contacto = Contacto.crear_contacto(
@@ -163,6 +170,15 @@ class ContactoService:
         contacto.email = validar_email(
             input("Ingresa el nuevo email: ")
         )
+
+        if self.repository.existe_email_en_otro_contacto(
+            contacto.email,
+            contacto.id
+        ):
+
+            raise RegistroDuplicadoError(
+                "Ese correo ya pertenece a otro contacto activo."
+            )
 
         contacto.id_categoria = (
             self.seleccionar_categoria()

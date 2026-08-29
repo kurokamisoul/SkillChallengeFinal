@@ -210,3 +210,56 @@ class ContactoRepository:
 
         finally:
             cursor.close()
+
+
+    def existe_email(self, email: str) -> bool:
+
+        sql = """
+            SELECT 1
+            FROM contactos
+            WHERE email = %s
+            AND activo = TRUE
+            LIMIT 1
+        """
+
+        cursor = self.connection.cursor()
+
+        try:
+            cursor.execute(sql, (email,))
+            return cursor.fetchone() is not None
+
+        finally:
+            cursor.close()
+
+
+    def existe_email_en_otro_contacto(
+        self,
+        email: str,
+        id_contacto: int
+    ) -> bool:
+
+        sql = """
+            SELECT 1
+            FROM contactos
+            WHERE email = %s
+            AND id <> %s
+            AND activo = TRUE
+            LIMIT 1
+        """
+
+        cursor = self.connection.cursor()
+
+        try:
+
+            cursor.execute(
+                sql,
+                (
+                    email,
+                    id_contacto
+                )
+            )
+
+            return cursor.fetchone() is not None
+
+        finally:
+            cursor.close()
