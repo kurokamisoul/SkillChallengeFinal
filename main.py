@@ -1,58 +1,63 @@
 from repositories.db import get_connection
 from repositories.contacto_repositori import ContactoRepository
+from repositories.categoria_repositori import CategoriaRepository
 from services.contacto_services import ContactoService
 
 
 def menu_contactos():
 
-    try:
-        connection = get_connection()
-    except Exception as e:
-        print(f"No fue posible conectar con MySQL: {e}")
-        return
+    connection = get_connection()
 
-    repository = ContactoRepository(connection)
-    service = ContactoService(repository)
+    contacto_repository = ContactoRepository(
+        connection
+    )
 
-    try:
-        while True:
+    categoria_repository = CategoriaRepository(
+        connection
+    )
 
-            print(
-                """
-            MENU DE CONTACTOS
+    service = ContactoService(
+        contacto_repository,
+        categoria_repository
+    )
 
-            1. Agregar
-            2. Ver
-            3. Actualizar
-            4. Eliminar
-            5. Salir
+    while True:
+
+        print(
             """
-            )
+        MENU DE CONTACTOS
 
-            opcion = input("Opción: ")
+        1. Agregar
+        2. Ver
+        3. Actualizar
+        4. Eliminar
+        5. Salir
+        """
+        )
 
-            match opcion:
+        opcion = input("Opción: ")
 
-                case "1":
-                    service.registrar_contacto()
+        match opcion:
 
-                case "2":
-                    service.mostrar_contactos()
+            case "1":
+                service.registrar_contacto()
 
-                case "3":
-                    service.actualizar_contacto()
+            case "2":
+                service.mostrar_contactos()
 
-                case "4":
-                    service.eliminar_contacto()
+            case "3":
+                service.actualizar_contacto()
 
-                case "5":
-                    break
+            case "4":
+                service.eliminar_contacto()
 
-                case _:
-                    print("Opción no válida.")
-    finally:
-        connection.close()
-    
+            case "5":
+                break
+
+            case _:
+                print("Opción no válida.")
+
+    connection.close()
 
 
 if __name__ == "__main__":

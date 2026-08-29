@@ -1,5 +1,7 @@
 from models.contacto import Contacto
 from repositories.contacto_repositori import ContactoRepository
+from repositories.categoria_repositori import CategoriaRepository
+
 
 def validar_telefono(telefono: str) -> str:
 
@@ -28,17 +30,60 @@ def validar_email(email: str) -> str:
         email = input("Ingresa el email: ")
 
     return email
+
+
 class ContactoService:
 
     def __init__(
         self,
-        repository: ContactoRepository
+        repository: ContactoRepository,
+        categoria_repository: CategoriaRepository
     ):
         self.repository = repository
+        self.categoria_repository = categoria_repository
+
+    def seleccionar_categoria(self) -> int:
+
+        categorias = self.categoria_repository.listar_categorias()
+
+        if not categorias:
+            raise ValueError(
+                "No existen categorías disponibles."
+            )
+
+        print("\nCategorías disponibles:")
+
+        for categoria in categorias:
+            print(
+                f"{categoria.id_categoria}. "
+                f"{categoria.nombre}"
+            )
+
+        while True:
+
+            try:
+                id_categoria = int(
+                    input("Selecciona una categoría: ")
+                )
+
+                categoria = (
+                    self.categoria_repository
+                    .obtener_por_id(id_categoria)
+                )
+
+                if categoria is not None:
+                    return categoria.id_categoria
+
+                print("La categoría seleccionada no existe.")
+
+            except ValueError:
+                print("Debes ingresar un número válido.")
 
     def registrar_contacto(self):
 
-        nombre = input("Ingresa el nombre: ")
+        nombre = input(
+            "Ingresa el nombre: "
+        )
 
         telefono = validar_telefono(
             input("Ingresa el teléfono: ")
@@ -48,35 +93,56 @@ class ContactoService:
             input("Ingresa el email: ")
         )
 
+        id_categoria = self.seleccionar_categoria()
+
         contacto = Contacto.crear_contacto(
             nombre,
             telefono,
-            email
+            email,
+            id_categoria
         )
 
-        contacto = self.repository.crear(contacto)
+        contacto = self.repository.crear(
+            contacto
+        )
 
         print(
-            f"El contacto {contacto.nombre_contacto} "
+            f"El contacto "
+            f"{contacto.nombre_contacto} "
             f"se agregó correctamente."
         )
 
     def mostrar_contactos(self):
 
-        contactos = self.repository.listar_contactos()
+        contactos = self.repository.listar_con_categoria()
 
         if not contactos:
             print("No existen contactos.")
             return
 
+        print("\n--- CONTACTOS ---")
+
         for contacto in contactos:
-            print(contacto)
+
+            print(
+                f"ID: {contacto['id']} | "
+                f"Nombre: {contacto['nombre_contacto']} | "
+                f"Teléfono: {contacto['telefono']} | "
+                f"Email: {contacto['email']} | "
+                f"Categoría: {contacto['categoria']} | "
+                f"Fecha: {contacto['fecha_creacion']}"
+            )
 
     def actualizar_contacto(self):
 
-        id_contacto = int(
-            input("Ingresa el ID del contacto: ")
-        )
+        try:
+            id_contacto = int(
+                input("Ingresa el ID del contacto: ")
+            )
+
+        except ValueError:
+            print("El ID debe ser numérico.")
+            return
 
         contacto = self.repository.obtener_por_id(
             id_contacto
@@ -98,16 +164,41 @@ class ContactoService:
             input("Ingresa el nuevo email: ")
         )
 
+        contacto.id_categoria = (
+            self.seleccionar_categoria()
+        )
+
         if self.repository.actualizar(contacto):
-            print("Contacto actualizado.")
+
+            print(
+                "Contacto actualizado correctamente."
+            )
+
+        else:
+
+            print(
+                "No se pudo actualizar el contacto."
+            )
 
     def eliminar_contacto(self):
 
-        id_contacto = int(
-            input("Ingresa el ID del contacto: ")
-        )
+        try:
+            id_contacto = int(
+                input("Ingresa el ID del contacto: ")
+            )
+
+        except ValueError:
+            print("El ID debe ser numérico.")
+            return
 
         if self.repository.eliminar(id_contacto):
-            print("Contacto eliminado.")
+
+            print(
+                "Contacto eliminado correctamente."
+            )
+
         else:
-            print("Contacto no encontrado.")
+
+            print(
+                "Contacto no encontrado."
+            )

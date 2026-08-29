@@ -13,7 +13,8 @@ class ContactoRepository:
                 telefono,
                 email,
                 activo,
-                fecha_creacion
+                fecha_creacion,
+                id_categoria
             FROM contactos
             WHERE activo = TRUE
             ORDER BY id
@@ -46,7 +47,8 @@ class ContactoRepository:
                 telefono,
                 email,
                 activo,
-                fecha_creacion
+                fecha_creacion,
+                id_categoria
             FROM contactos
             WHERE id = %s
         """
@@ -76,7 +78,8 @@ class ContactoRepository:
                 nombre_contacto,
                 telefono,
                 email,
-                activo
+                activo,
+                id_categoria
             )
             VALUES (%s, %s, %s, %s)
         """
@@ -91,7 +94,8 @@ class ContactoRepository:
                     contacto.nombre_contacto,
                     contacto.telefono,
                     contacto.email,
-                    contacto.activo
+                    contacto.activo,
+                    contacto.id_categoria
                 )
             )
 
@@ -118,7 +122,8 @@ class ContactoRepository:
             SET
                 nombre_contacto = %s,
                 telefono = %s,
-                email = %s
+                email = %s,
+                id_categoria = %s
             WHERE id = %s
         """
 
@@ -132,6 +137,7 @@ class ContactoRepository:
                     contacto.nombre_contacto,
                     contacto.telefono,
                     contacto.email,
+                    contacto.id_categoria,
                     contacto.id
                 )
             )
@@ -171,6 +177,36 @@ class ContactoRepository:
         except Exception:
             self.connection.rollback()
             raise
+
+        finally:
+            cursor.close()
+
+    def listar_con_categoria(self) -> list[dict]:
+
+        sql = """
+            SELECT
+                c.id,
+                c.nombre_contacto,
+                c.telefono,
+                c.email,
+                c.activo,
+                c.fecha_creacion,
+                cat.id_categoria,
+                cat.nombre AS categoria
+            FROM contactos AS c
+            INNER JOIN categorias AS cat
+                ON c.id_categoria = cat.id_categoria
+            WHERE c.activo = TRUE
+            ORDER BY c.id
+        """
+
+        cursor = self.connection.cursor(dictionary=True)
+
+        try:
+
+            cursor.execute(sql)
+
+            return cursor.fetchall()
 
         finally:
             cursor.close()
