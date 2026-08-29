@@ -1,0 +1,130 @@
+[
+  {
+    "id": 1,
+    "nombre_contacto": "Guillermina Carvajal",
+    "telefono": 5076082388,
+    "email": "curielmaria-luisa@example.net",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 2,
+    "nombre_contacto": "Rodolfo Durán Sepúlveda",
+    "telefono": 8249052144,
+    "email": "adrianagarrido@example.net",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 3,
+    "nombre_contacto": "Srita. Natalia Prieto",
+    "telefono": 2258723104,
+    "email": "wcordero@example.com",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 4,
+    "nombre_contacto": "Carolina Emilia Godínez",
+    "telefono": 3305985781,
+    "email": "irma91@example.org",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 5,
+    "nombre_contacto": "Ilse Antonia Morales Adame",
+    "telefono": 4870937761,
+    "email": "sisneroskarla@example.org",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 6,
+    "nombre_contacto": "Jos Durán Macías",
+    "telefono": 4592579926,
+    "email": "varelaarmando@example.net",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 7,
+    "nombre_contacto": "Samuel Arriaga Valenzuela",
+    "telefono": 8932772552,
+    "email": "karinamendez@example.com",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 8,
+    "nombre_contacto": "Lic. Concepción Serna",
+    "telefono": 1330965900,
+    "email": "gabinomeza@example.org",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 9,
+    "nombre_contacto": "Ing. Rosario Jiménez",
+    "telefono": 7336115398,
+    "email": "rsoria@example.com",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 10,
+    "nombre_contacto": "Dr. Raúl Navarro",
+    "telefono": 5841607471,
+    "email": "ftovar@example.com",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 11,
+    "nombre_contacto": "Dra. Anabel Apodaca",
+    "telefono": 9322733368,
+    "email": "anabel56@example.com",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 12,
+    "nombre_contacto": "Leonel Santiago Casanova",
+    "telefono": 2818338254,
+    "email": "xbarraza@example.net",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 13,
+    "nombre_contacto": "Marco Antonio Barreto",
+    "telefono": 7394098802,
+    "email": "jose-carlos80@example.net",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 14,
+    "nombre_contacto": "Elvia Marisela Alfaro",
+    "telefono": 4553781658,
+    "email": "ceciliadelgadillo@example.net",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 15,
+    "nombre_contacto": "Eugenio Ulibarri Blanco",
+    "telefono": 4945616621,
+    "email": "evelio45@example.org",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  },
+  {
+    "id": 16,
+    "nombre_contacto": "Mike",
+    "telefono": "4777575067",
+    "email": "mike@gamil.com",
+    "activo": true,
+    "fecha_creacion": "07/08/2026"
+  }
+]
