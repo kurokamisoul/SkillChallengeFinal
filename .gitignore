@@ -15,3 +15,7 @@ __pycache__/
 
 # Archivos generados
 *.log
+
+# Datos generados por el programa
+data/*.json
+reportes/*.csv

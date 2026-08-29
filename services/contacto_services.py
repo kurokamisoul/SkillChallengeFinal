@@ -118,6 +118,7 @@ class ContactoService:
             f"{contacto.nombre_contacto} "
             f"se agregó correctamente."
         )
+        return contacto
 
     def mostrar_contactos(self):
 
@@ -189,12 +190,14 @@ class ContactoService:
             print(
                 "Contacto actualizado correctamente."
             )
-
+            return contacto
+        
         else:
 
             print(
                 "No se pudo actualizar el contacto."
             )
+            return None
 
     def eliminar_contacto(self):
 
@@ -212,9 +215,10 @@ class ContactoService:
             print(
                 "Contacto eliminado correctamente."
             )
-
+            return id_contacto
         else:
 
             print(
                 "Contacto no encontrado."
             )
+            return None
