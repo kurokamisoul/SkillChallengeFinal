@@ -5,49 +5,54 @@ from services.contacto_services import ContactoService
 
 def menu_contactos():
 
-    connection = get_connection()
+    try:
+        connection = get_connection()
+    except Exception as e:
+        print(f"No fue posible conectar con MySQL: {e}")
+        return
 
     repository = ContactoRepository(connection)
-
     service = ContactoService(repository)
 
-    while True:
+    try:
+        while True:
 
-        print(
+            print(
+                """
+            MENU DE CONTACTOS
+
+            1. Agregar
+            2. Ver
+            3. Actualizar
+            4. Eliminar
+            5. Salir
             """
-        MENU DE CONTACTOS
+            )
 
-        1. Agregar
-        2. Ver
-        3. Actualizar
-        4. Eliminar
-        5. Salir
-        """
-        )
+            opcion = input("Opción: ")
 
-        opcion = input("Opción: ")
+            match opcion:
 
-        match opcion:
+                case "1":
+                    service.registrar_contacto()
 
-            case "1":
-                service.registrar_contacto()
+                case "2":
+                    service.mostrar_contactos()
 
-            case "2":
-                service.mostrar_contactos()
+                case "3":
+                    service.actualizar_contacto()
 
-            case "3":
-                service.actualizar_contacto()
+                case "4":
+                    service.eliminar_contacto()
 
-            case "4":
-                service.eliminar_contacto()
+                case "5":
+                    break
 
-            case "5":
-                break
-
-            case _:
-                print("Opción no válida.")
-
-    connection.close()
+                case _:
+                    print("Opción no válida.")
+    finally:
+        connection.close()
+    
 
 
 if __name__ == "__main__":
