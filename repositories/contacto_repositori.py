@@ -81,7 +81,7 @@ class ContactoRepository:
                 activo,
                 id_categoria
             )
-            VALUES (%s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s,%s)
         """
 
         cursor = self.connection.cursor()
