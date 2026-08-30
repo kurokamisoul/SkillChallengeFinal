@@ -1,15 +1,11 @@
 from repositories.db import get_connection
-
 from repositories.contacto_repositori import ContactoRepository
-
 from repositories.categoria_repositori import CategoriaRepository
-
+from repositories.reportes_repositori import ReportesRepository
+from services.reportes_service import ReportesService
 from services.contacto_services import ContactoService
-
 from services.exceptions import RegistroDuplicadoError
-
 from services.archivo_services import ArchivoService
-
 from mysql.connector import Error
 
 
@@ -32,6 +28,14 @@ def menu_contactos():
         connection
     )
 
+    reportes_repository = ReportesRepository(
+    connection
+    )
+
+    reportes_service = ReportesService(
+        reportes_repository
+    )
+
     service = ContactoService(
         contacto_repository,
         categoria_repository
@@ -51,6 +55,7 @@ def menu_contactos():
         4. Eliminar
         5. Salir
         6. Exportar contactos a CSV
+        7. Contactos por categoría
         """
         )
 
@@ -187,6 +192,14 @@ def menu_contactos():
                     print(
                         f"Error al generar el archivo: {error}"
                     )
+
+            case "7":
+                try:
+                    reportes_service.mostrar_contactos_por_categoria()
+                except Error as error:
+                    print(
+                        f"Error de base de datos: {error}"
+                    )        
 
             case _:
 
