@@ -1,35 +1,33 @@
 # SkillChallengeFinal
 
-Aplicación de consola desarrollada en Python para la gestión de contactos,
-utilizando MySQL como sistema de persistencia y una arquitectura organizada
-por capas.
-
 ## Descripción
 
-El proyecto permite administrar contactos mediante un CRUD completo:
+SkillChallengeFinal es una aplicación de consola desarrollada en Python para la gestión de contactos personales.
+
+El sistema utiliza MySQL como sistema gestor de base de datos y está organizado mediante una arquitectura en capas, separando los modelos, el acceso a datos, la lógica de negocio y el punto de entrada de la aplicación.
+
+El proyecto permite administrar contactos, asociarlos con categorías y generar reportes a partir de la información almacenada.
+
+---
+
+## Funcionalidades
+
+El sistema cuenta con las siguientes funcionalidades:
 
 - Crear contactos.
 - Consultar contactos.
 - Actualizar contactos.
-- Eliminar contactos mediante desactivación lógica.
-- Asociar cada contacto con una categoría.
-- Validar teléfono y correo electrónico.
-- Evitar el registro de correos electrónicos duplicados.
-- Registrar auditoría de las operaciones realizadas.
-- Exportar el listado de contactos a CSV.
+- Eliminar contactos mediante eliminación lógica.
+- Asociar contactos con categorías.
+- Validar números telefónicos.
+- Validar correos electrónicos.
+- Evitar registros con correos electrónicos duplicados.
+- Validar que la categoría seleccionada exista.
+- Registrar auditoría de operaciones mediante JSON.
+- Exportar el listado de contactos a un archivo CSV.
+- Generar un reporte con la cantidad de contactos por categoría.
 
-El proyecto fue desarrollado como parte del Skill Challenge y busca aplicar
-principios de programación orientada a objetos, separación de responsabilidades,
-persistencia en base de datos, manejo de excepciones y control de versiones
-con Git.
-
-## Tecnologías
-
-- Python 3.13
-- MySQL
-- mysql-connector-python
-- python-dotenv
-- Git / GitHub
+---
 
 ## Arquitectura
 
@@ -38,115 +36,282 @@ El proyecto utiliza una arquitectura en capas:
 ```text
 SkillChallengeFinal/
 │
-├── main.py
-├── CONFLICTOS.md
-├── README.md
-├── requirements.txt
-├── .env
-├── .gitignore
-│
 ├── models/
 │   └── contacto.py
 │
 ├── repositories/
 │   ├── db.py
 │   ├── contacto_repositori.py
-│   └── categoria_repositori.py
+│   ├── categoria_repositori.py
+│   └── reportes_repository.py
 │
 ├── services/
 │   ├── contacto_services.py
 │   ├── archivo_services.py
-│   └── exceptions.py
-│
-├── sql/
-│   └── skillchallengefinal.sql
+│   ├── exceptions.py
+│   └── reportes_service.py
 │
 ├── data/
 │   └── auditoria.json
 │
-└── reportes/
-    └── contactos.csv
+├── reportes/
+│   └── contactos.csv
+│
+├── sql/
+│   └── ...
+│
+├── .env
+├── .gitignore
+├── CONFLICTOS.md
+├── README.md
+├── requirements.txt
+└── main.py
 ```
 
-### Capas
+### Models
 
-#### Models
+Contiene las clases que representan las entidades utilizadas por la aplicación.
 
-Contiene las clases que representan las entidades del sistema.
+La clase `Contacto` representa la información de un contacto y utiliza `dataclass`.
 
-`Contacto` utiliza `dataclass` para representar los datos de un contacto.
+### Repositories
 
-#### Repositories
+Esta capa se encarga del acceso a la base de datos.
 
-Contiene la comunicación con MySQL y las operaciones de persistencia.
+Contiene:
 
-Los repositorios se encargan de ejecutar consultas SQL para crear, consultar,
-actualizar y eliminar registros.
+- Conexión con MySQL.
+- Consultas SQL.
+- Inserción de contactos.
+- Consulta de contactos.
+- Actualización de contactos.
+- Eliminación lógica.
+- Consulta de categorías.
+- Consultas utilizadas para generar reportes.
 
-#### Services
+### Services
 
-Contiene la lógica de negocio de la aplicación.
+Esta capa contiene la lógica de negocio de la aplicación.
 
-Aquí se encuentran las validaciones, selección de categorías, reglas de negocio
-y manejo de las operaciones del sistema.
+Se encarga de:
 
-#### Main
+- Validaciones.
+- Reglas de negocio.
+- Registro de contactos.
+- Actualización y eliminación.
+- Manejo de archivos.
+- Auditoría.
+- Generación de reportes.
+- Manejo de excepciones propias.
 
-`main.py` es el punto de entrada de la aplicación y contiene el menú de
-interacción con el usuario.
+### main.py
+
+Es el punto de entrada de la aplicación.
+
+Se encarga de:
+
+- Mostrar el menú.
+- Recibir las opciones del usuario.
+- Invocar los servicios correspondientes.
+- Capturar las excepciones.
+- Mostrar mensajes claros al usuario.
+
+---
 
 ## Base de datos
 
-La aplicación utiliza MySQL para la persistencia de información.
+El proyecto utiliza **MySQL** para la persistencia de información.
 
-La base de datos contiene principalmente las tablas:
-
-- `contactos`
-- `categorias`
-
-Existe una relación de uno a muchos entre categorías y contactos:
+La entidad principal es `contactos` y existe una relación de uno a muchos entre `categorias` y `contactos`.
 
 ```text
 categorias
-    │
-    │ 1
-    │
-    └──────── N
-             contactos
+     1
+     │
+     │ id_categoria
+     │
+     N
+contactos
 ```
 
-Cada contacto contiene una llave foránea `id_categoria` que referencia a la
-categoría correspondiente.
+Una categoría puede tener múltiples contactos, mientras que cada contacto pertenece a una categoría.
 
-También se utiliza un `INNER JOIN` para mostrar los contactos junto con el
-nombre de su categoría.
+La tabla `contactos` utiliza `id_categoria` como llave foránea hacia la tabla `categorias`.
 
-El script completo de creación de la base de datos se encuentra en:
+---
+
+## Reporte de contactos por categoría
+
+El proyecto cuenta con un reporte que permite conocer cuántos contactos existen en cada categoría.
+
+La consulta utiliza la relación entre ambas tablas y funciones de agregación.
+
+Ejemplo:
+
+```sql
+SELECT
+    cat.nombre AS categoria,
+    COUNT(c.id) AS total_contactos
+FROM categorias AS cat
+LEFT JOIN contactos AS c
+    ON c.id_categoria = cat.id_categoria
+    AND c.activo = TRUE
+GROUP BY
+    cat.id_categoria,
+    cat.nombre
+ORDER BY
+    cat.nombre;
+```
+
+El resultado puede mostrar información como:
 
 ```text
-sql/skillchallengefinal.sql
+Amigos: 4 contactos
+Familia: 2 contactos
+Otros: 1 contactos
+Personal: 0 contactos
+Trabajo: 1 contactos
 ```
 
-## Configuración
+Se utiliza `LEFT JOIN` para que también aparezcan las categorías que no tengan contactos activos.
 
-La conexión a MySQL utiliza variables de entorno mediante un archivo `.env`.
+---
 
-Crear un archivo `.env` en la raíz del proyecto:
+## Reglas de negocio
+
+El sistema implementa reglas de negocio que dependen de información existente en la base de datos.
+
+1. No se permite registrar un contacto con un correo ya existente.
+2. La categoría seleccionada debe existir en la base de datos.
+3. Los contactos eliminados se desactivan, no se borran físicamente.
+4. El teléfono debe contener exactamente 10 caracteres numéricos.
+5. El correo debe tener un formato básico válido.
+
+La regla de correo duplicado utiliza `RegistroDuplicadoError`, una excepción propia que hereda de `Exception`.
+
+---
+
+## Manejo de excepciones
+
+El proyecto utiliza excepciones específicas para evitar que el programa termine abruptamente ante errores esperados.
+
+Se implementó una excepción propia:
+
+```python
+class RegistroDuplicadoError(Exception):
+    pass
+```
+
+Las excepciones se definen y lanzan en las capas correspondientes y son capturadas en `main.py`.
+
+Ejemplo:
+
+```python
+try:
+    service.registrar_contacto()
+except RegistroDuplicadoError as error:
+    print(f"Error: {error}")
+except Error as error:
+    print(f"Error de base de datos: {error}")
+```
+
+También se manejan errores relacionados con la generación y escritura de archivos.
+
+---
+
+## Auditoría mediante JSON
+
+El sistema registra las operaciones realizadas sobre los contactos en:
 
 ```text
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=tu_usuario
-DB_PASSWORD=tu_contraseña
-DB_NAME=skillchallengefinal
+data/auditoria.json
 ```
 
-Los valores deben sustituirse por las credenciales correspondientes al entorno
-local.
+Actualmente se registran las siguientes operaciones:
 
-**No subir el archivo `.env` a GitHub.**
+```text
+CREATE
+UPDATE
+DELETE
+```
 
-El archivo `.gitignore` del proyecto está configurado para ignorarlo.
+Cada registro contiene:
+
+- Operación realizada.
+- ID del contacto.
+- Fecha y hora.
+
+Ejemplo:
+
+```json
+{
+    "operacion": "CREATE",
+    "id_contacto": 5,
+    "fecha": "2026-08-29T18:00:00"
+}
+```
+
+El archivo JSON funciona como un registro de auditoría de las operaciones realizadas por el usuario.
+
+---
+
+## Exportación CSV
+
+El sistema permite exportar el listado completo de contactos a:
+
+```text
+reportes/contactos.csv
+```
+
+El archivo contiene información como:
+
+- ID.
+- Nombre.
+- Teléfono.
+- Email.
+- Estado.
+- Fecha de creación.
+- ID de categoría.
+- Categoría.
+
+El archivo puede abrirse directamente con Microsoft Excel u otro programa compatible con archivos CSV.
+
+---
+
+## Menú de la aplicación
+
+El menú principal permite realizar las operaciones disponibles:
+
+```text
+MENU DE CONTACTOS
+
+1. Agregar
+2. Ver
+3. Actualizar
+4. Eliminar
+5. Salir
+6. Exportar contactos a CSV
+7. Contactos por categoría
+```
+
+---
+
+## Requisitos
+
+Para ejecutar el proyecto se requiere:
+
+- Python 3.13 o compatible.
+- MySQL.
+- pip.
+- Git.
+
+Las dependencias de Python se encuentran en:
+
+```text
+requirements.txt
+```
+
+---
 
 ## Instalación
 
@@ -156,7 +321,7 @@ Clonar el repositorio:
 git clone https://github.com/kurokamisoul/SkillChallengeFinal.git
 ```
 
-Entrar al proyecto:
+Entrar al directorio:
 
 ```bash
 cd SkillChallengeFinal
@@ -170,8 +335,8 @@ python -m venv .venv
 
 Activar el entorno virtual en Windows:
 
-```powershell
-.venv\Scripts\Activate.ps1
+```bash
+.venv\Scripts\activate
 ```
 
 Instalar las dependencias:
@@ -180,17 +345,27 @@ Instalar las dependencias:
 pip install -r requirements.txt
 ```
 
+---
+
 ## Configuración de la base de datos
 
-1. Abrir MySQL.
-2. Ejecutar el script:
+Crear un archivo `.env` en la raíz del proyecto con las credenciales correspondientes:
 
 ```text
-sql/skillchallengefinal.sql
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=tu_usuario
+DB_PASSWORD=tu_contraseña
+DB_NAME=tu_base_de_datos
 ```
 
-3. Crear el archivo `.env` con las credenciales de conexión.
-4. Verificar que MySQL esté disponible.
+Las credenciales reales no deben publicarse en GitHub.
+
+El archivo `.env` se encuentra contemplado dentro de `.gitignore`.
+
+La estructura y creación de las tablas se encuentra en los archivos SQL del proyecto.
+
+---
 
 ## Ejecución
 
@@ -200,150 +375,94 @@ Desde la raíz del proyecto ejecutar:
 python main.py
 ```
 
-Se mostrará el menú principal:
+La aplicación mostrará el menú principal y permitirá interactuar con la base de datos.
+
+---
+
+## Control de versiones
+
+El desarrollo del proyecto se realizó utilizando Git y ramas de trabajo.
+
+Las principales ramas utilizadas fueron:
 
 ```text
-MENU DE CONTACTOS
-
-1. Agregar
-2. Ver
-3. Actualizar
-4. Eliminar
-5. Salir
-6. Exportar contactos a CSV
+main
+excepciones
+auditoria
+reportes
 ```
 
-## CRUD
+### Rama excepciones
 
-### Crear
+En esta rama se implementaron:
 
-Permite registrar un nuevo contacto solicitando:
+- Excepciones propias.
+- Manejo específico de errores.
+- Reglas de negocio.
 
-- Nombre.
-- Teléfono.
-- Email.
-- Categoría.
+### Rama auditoria
 
-El sistema genera automáticamente el identificador y la fecha de creación
-desde la base de datos.
+En esta rama se implementaron:
 
-### Leer
+- Registro de operaciones en JSON.
+- Exportación de contactos a CSV.
+- Actualización de documentación del proyecto.
 
-Muestra los contactos activos y utiliza un `JOIN` con la tabla de categorías
-para mostrar el nombre de la categoría.
+### Rama reportes
 
-### Actualizar
+En esta rama se implementaron:
 
-Permite modificar los datos de un contacto existente y seleccionar una nueva
-categoría.
+- Consulta de contactos agrupados por categoría.
+- Lógica para generar el reporte.
+- Integración del reporte con la aplicación.
 
-### Eliminar
+Las ramas de trabajo fueron integradas mediante merges hacia `main`.
 
-El contacto no se elimina físicamente de la base de datos. Se realiza una
-eliminación lógica mediante el campo `activo`.
+---
 
-## Reglas de negocio
+## Conflictos
 
-El proyecto implementa reglas de negocio más allá de la validación de campos
-vacíos.
+Durante el desarrollo del proyecto se provocó y resolvió un conflicto real durante la integración de cambios.
 
-Entre ellas:
-
-- El teléfono debe contener exactamente 10 caracteres numéricos.
-- El correo debe tener un formato básico válido.
-- No se permite registrar un correo electrónico que ya exista.
-- La categoría seleccionada debe existir en la base de datos.
-- Los contactos eliminados lógicamente no aparecen en el listado normal.
-
-La regla de correo duplicado se maneja mediante la excepción propia:
+El conflicto involucró principalmente modificaciones en:
 
 ```text
-RegistroDuplicadoError
+main.py
 ```
 
-## Manejo de excepciones
+La resolución permitió integrar correctamente las funcionalidades desarrolladas en diferentes ramas.
 
-El proyecto utiliza excepciones específicas para evitar que la aplicación se
-cierre inesperadamente.
-
-Se utiliza una excepción propia:
-
-```python
-class RegistroDuplicadoError(Exception):
-    pass
-```
-
-Las excepciones se generan en la capa correspondiente y se capturan en
-`main.py`, donde se muestran mensajes comprensibles para el usuario.
-
-También se manejan errores específicos relacionados con MySQL y operaciones
-de archivos.
-
-## Auditoría JSON
-
-Las operaciones realizadas sobre los contactos se registran en:
-
-```text
-data/auditoria.json
-```
-
-Se registran operaciones como:
-
-```text
-CREATE
-UPDATE
-DELETE
-```
-
-Cada registro contiene la operación, el ID del contacto y la fecha en que se
-realizó.
-
-## Exportación CSV
-
-La opción:
-
-```text
-6. Exportar contactos a CSV
-```
-
-genera:
-
-```text
-reportes/contactos.csv
-```
-
-El archivo contiene el listado completo de contactos junto con su categoría y
-puede abrirse utilizando Excel u otra aplicación compatible con CSV.
-
-## Git
-
-El desarrollo del proyecto se realizó mediante ramas de funcionalidad para
-separar diferentes etapas de implementación.
-
-Entre las funcionalidades desarrolladas se encuentran:
-
-- Manejo de excepciones.
-- Auditoría.
-- Exportación de reportes.
-
-También se realizó la resolución de un conflicto real durante la integración
-de cambios entre ramas.
-
-El conflicto y su resolución se documentan en:
+El proceso se encuentra documentado en:
 
 ```text
 CONFLICTOS.md
 ```
 
-## Seguridad
+---
 
-Las credenciales de la base de datos se almacenan mediante variables de
-entorno y el archivo `.env` está excluido del repositorio mediante `.gitignore`.
+## Objetivo del proyecto
 
-No se deben colocar contraseñas u otras credenciales directamente en el código
-fuente.
+El objetivo del proyecto es aplicar los conocimientos adquiridos en programación con Python y bases de datos mediante el desarrollo de una aplicación funcional.
+
+Se aplican los siguientes conceptos:
+
+- Programación orientada a objetos.
+- Arquitectura en capas.
+- Persistencia en MySQL.
+- Relaciones entre tablas.
+- Llaves foráneas.
+- Consultas SQL.
+- Reglas de negocio.
+- Manejo de excepciones.
+- Excepciones personalizadas.
+- Manejo de archivos CSV.
+- Manejo de archivos JSON.
+- Auditoría.
+- Reportes.
+- Control de versiones con Git.
+
+---
 
 ## Autor
 
-Proyecto desarrollado por Miguel Angel Mtz. Chávez como parte del Skill
-Challenge.
+Proyecto desarrollado como parte del **Skill Challenge Final**.
